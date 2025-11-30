@@ -53,7 +53,7 @@
 <h2>💬 Minha IA</h2>
 
 <label>API KEY do Google:</label>
-<input id="apiKey" placeholder="Cole sua KEY aqui...">
+<input id="apiKey" placeholder="AIzaSyAtUHP7nQpNYB1oB47FzZNWvARfmI-OF8Y">
 
 <div id="chatBox"></div>
 
@@ -91,7 +91,7 @@ document.getElementById("sendBtn").onclick = async () => {
     const key = document.getElementById("apiKey").value.trim();
     const prompt = document.getElementById("prompt").value.trim();
 
-    if (!key) return alert("AIzaSyAtUHP7nQpNYB1oB47FzZNWvARfmI-OF8Y");
+    if (!key) return alert("Coloque sua API KEY!");
     if (!prompt) return alert("Digite algo!");
 
     addMessage("<b>Você:</b> " + prompt);
