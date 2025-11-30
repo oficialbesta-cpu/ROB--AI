@@ -10,6 +10,7 @@
         margin: 0;
         padding: 20px;
     }
+
     #chatBox {
         width: 100%;
         height: 420px;
@@ -19,18 +20,21 @@
         overflow-y: auto;
         border: 1px solid #ccc;
     }
+
     #inputArea {
         margin-top: 12px;
         display: flex;
         gap: 10px;
     }
+
     #prompt, #apiKey {
         flex: 1;
         padding: 10px;
         border-radius: 5px;
         border: 1px solid #aaa;
     }
-    #sendBtn, #copyBtn, #devBtn, #backBtn, #savePromptBtn {
+
+    button {
         padding: 10px;
         border: none;
         background: #007bff;
@@ -38,9 +42,10 @@
         color: white;
         cursor: pointer;
     }
+
     #devPanel {
         display: none;
-        background: #fff;
+        background: white;
         border: 1px solid #aaa;
         padding: 10px;
         border-radius: 8px;
@@ -53,7 +58,7 @@
 <h2>💬 Minha IA</h2>
 
 <label>API KEY do Google:</label>
-<input id="apiKey" placeholder="AIzaSyAtUHP7nQpNYB1oB47FzZNWvARfmI-OF8Y">
+<input id="apiKey" placeholder="Cole sua KEY aqui...">
 
 <div id="chatBox"></div>
 
@@ -88,19 +93,25 @@ function addMessage(txt) {
 
 /* Botão enviar */
 document.getElementById("sendBtn").onclick = async () => {
+
     const key = document.getElementById("apiKey").value.trim();
     const prompt = document.getElementById("prompt").value.trim();
 
-    if (!key) return alert("Coloque sua API KEY!");
+    if (!key) return alert("AIzaSyAtUHP7nQpNYB1oB47FzZNWvARfmI-OF8Y");
     if (!prompt) return alert("Digite algo!");
 
     addMessage("<b>Você:</b> " + prompt);
 
-    const url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + key;
+    const url =
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" + key;
 
     const body = {
         contents: [
-            { parts: [{ text: systemPrompt + "\n\nUsuário: " + prompt }] }
+            {
+                parts: [
+                    { text: systemPrompt + "\n\nUsuário: " + prompt }
+                ]
+            }
         ]
     };
 
@@ -113,7 +124,9 @@ document.getElementById("sendBtn").onclick = async () => {
 
         const json = await res.json();
 
-        const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
+        const text =
+            json?.candidates?.[0]?.content?.parts?.[0]?.text ||
+            json?.candidates?.[0]?.text;
 
         if (!text) {
             addMessage("<b>Erro:</b> " + (json.error?.message || "Resposta inválida."));
