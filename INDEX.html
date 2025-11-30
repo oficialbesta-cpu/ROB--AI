@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>IA – Lafy</title>
+  <style>
+    body{margin:0;background:#0e1525;font-family:Arial;color:#fff}
+    .box{max-width:700px;margin:20px auto;padding:20px;background:#131c33;border-radius:12px}
+    input,textarea{width:100%;padding:10px;border-radius:8px;border:1px solid #333;background:#0d1428;color:#fff}
+    button{padding:10px 16px;border:0;border-radius:8px;background:#6a5acd;color:#fff;cursor:pointer}
+    .messages{height:400px;overflow:auto;background:#0d1428;margin-top:15px;padding:10px;border-radius:8px}
+    .msg{padding:10px;background:#18223d;margin-bottom:10px;border-radius:8px;position:relative}
+    .copy{position:absolute;right:10px;top:10px;background:#222;padding:4px 8px;font-size:12px;border-radius:6px;cursor:pointer}
+    #devBtn{position:fixed;right:20px;bottom:20px;background:#111;padding:12px 16px;border-radius:50px}
+    #devModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center}
+    #devBox{background:#131c33;padding:20px;border-radius:12px;width:300px}
+  </style>
+</head>
+<body>
+
+<div class="box">
+  <h2>Lafy IA</h2>
+
+  <label>SUA API KEY DO GOOGLE:</label>
+  <input id="apiKey" placeholder="AIzaSyAtUHP7nQpNYB1oB47FzZNWvARfmI-OF8Y">
+
+  <br><br>
+
+  <label>PROMPT:</label>
+  <input id="prompt" placeholder="Digite algo...">
+
+  <br><br>
+
+  <button id="sendBtn">ENVIAR</button>
+
+  <div class="messages" id="messages"></div>
+</div>
+
+<button id="devBtn">DEV</button>
+
+<div id="devModal">
+  <div id="devBox">
+    <h3>DEV</h3>
+
+    <div id="devPassArea">
+      <p>Digite a senha:</p>
+      <input id="devPass" placeholder="Senha">
+      <br><br>
+      <button id="devOk">OK</button>
+    </div>
+
+    <div id="devArea" style="display:none">
+      <p>NEW PROMPT:</p>
+      <textarea id="newPrompt" rows="4"></textarea>
+      <br><br>
+      <button id="applyPrompt">VOLTAR</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let systemPrompt = "";
+
+function addMessage(text){
+  const box = document.getElementById("messages");
+  const div = document.createElement("div");
+  div.className = "msg";
+  div.innerHTML = `<div class="copy">COPIA</div>${text}`;
+  div.querySelector(".copy").onclick = () => {
+    navigator.clipboard.writeText(text);
+  };
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+document.getElementById("sendBtn").onclick = async () => {
+  const key = document.getElementById("apiKey").value.trim();
+  const prompt = document.getElementById("prompt").value.trim();
+
+  if(!key) return alert("Coloque sua API KEY!");
+  if(!prompt) return alert("Digite um prompt!");
+
+  addMessage("<b>Você:</b> " + prompt);
+
+  const fullPrompt = systemPrompt + "\n\n" + prompt;
+
+  try {
+    const res = await fetch(
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key="+key,
+      {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: fullPrompt }]}]
+        })
+      }
+    );
+
+    const json = await res.json();
+
+    const msg = json?.candidates?.[0]?.content?.parts?.[0]?.text || "Erro.";
+
+    addMessage("<b>Lafy:</b> " + msg);
+
+  } catch(e){
+    addMessage("<b>Erro:</b> " + e);
+  }
+};
+
+/* DEV */
+document.getElementById("devBtn").onclick = () => {
+  document.getElementById("devModal").style.display = "flex";
+};
+
+document.getElementById("devOk").onclick = () => {
+  const pass = document.getElementById("devPass").value.trim();
+  if(pass === "404"){
+    document.getElementById("devPassArea").style.display = "none";
+    document.getElementById("devArea").style.display = "block";
+  } else {
+    alert("Senha errada!");
+  }
+};
+
+document.getElementById("applyPrompt").onclick = () => {
+  systemPrompt = document.getElementById("newPrompt").value;
+  document.getElementById("devModal").style.display = "none";
+};
+</script>
+
+</body>
+</html>
